@@ -51,6 +51,18 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+
+ /* UART handler declaration */
+ UART_HandleTypeDef UartHandle;
+ __IO ITStatus UartReady = RESET;
+ 
+ /* Buffer used for transmission */
+ uint8_t aTxBuffer[] = " ****UART_TwoBoards_ComIT****  ****UART_TwoBoards_ComIT****  ****UART_TwoBoards_ComIT**** ";
+ 
+ /* Buffer used for reception */
+ uint8_t aRxBuffer[RXBUFFERSIZE];
+ 
+
 static uint8_t DemoIndex = 0;
 #ifdef EE_M24LR64
 uint8_t NbLoop = 1;
@@ -65,7 +77,7 @@ BSP_DemoTypedef BSP_examples[]=
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
 static void Display_DemoDescription(void);
-
+static void Error_Handler(void);
 /* Private functions ---------------------------------------------------------*/
 
 /**
@@ -89,7 +101,25 @@ int main(void)
   
   /* Configure the system clock to 180 MHz */
   SystemClock_Config();
-  
+ 
+
+	UartHandle.Instance          = USARTx;
+
+	UartHandle.Init.BaudRate     = 9600;
+	UartHandle.Init.WordLength   = UART_WORDLENGTH_8B;
+	UartHandle.Init.StopBits     = UART_STOPBITS_1;
+	UartHandle.Init.Parity       = UART_PARITY_NONE;
+	UartHandle.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
+	UartHandle.Init.Mode         = UART_MODE_TX_RX;
+	UartHandle.Init.OverSampling = UART_OVERSAMPLING_16;
+
+
+
+	if(HAL_UART_Init(&UartHandle) != HAL_OK)
+	{
+	 Error_Handler();
+	}
+
   /* Configure USER Button */
   BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_EXTI);
   
@@ -109,6 +139,7 @@ int main(void)
 		while (BSP_PB_GetState(BUTTON_KEY) == RESET);
 		MEMS_demo(); 
 	}
+  return 0;
 }
 
 /**
@@ -273,6 +304,22 @@ void assert_failed(uint8_t* file, uint32_t line)
   }
 }
 #endif
+
+ 
+ /**
+   * @brief  This function is executed in case of error occurrence.
+   * @param  None
+   * @retval None
+   */
+ static void Error_Handler(void)
+ {
+   /* Turn LED4 on */
+   BSP_LED_On(LED4);
+   while(1)
+   {
+   }
+ }
+
 
 /**
   * @}

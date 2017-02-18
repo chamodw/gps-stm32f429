@@ -35,8 +35,9 @@ SRCS  += Src/system_stm32f4xx.c
 # These source files implement the functions we use.
 # make finds them by searching the vpath defined above.
 #SRCS  += stm32f4xx_rcc.c 
-SRCS  += stm32f4xx_hal_gpio.c
-SRCS	+= stm32f4xx_hal_i2c.c
+SRCS += stm32f4xx_hal_uart.c
+SRCS += stm32f4xx_hal_gpio.c
+SRCS += stm32f4xx_hal_i2c.c
 SRCS += stm32f4xx_hal_spi.c
 SRCS += stm32f4xx_hal_dma.c
 SRCS += stm32f4xx_hal_rtc.c
@@ -70,9 +71,13 @@ INC_DIRS += Inc
 INC_DIRS += $(STM_DIR)/CMSIS/Device/ST/STM32F4xx/Include
 INC_DIRS += $(STM_DIR)/CMSIS/Include
 
+
+
+INCS = stm32f4xx_ll_fmc.h  
 # in case we have to many sources and don't want 
 # to compile all sources every time
 # OBJS = $(SRCS:.c=.o)
+
 
 ######################################################################
 #                         SETUP TOOLS                                #
@@ -96,7 +101,7 @@ INCLUDE = $(addprefix -I,$(INC_DIRS))
 # #defines needed when working with the STM library
 DEFS    = -DUSE_STDPERIPH_DRIVER
 DEFS	+= -DSTM32F429xx
-IFS += -DEE_M24LR64
+DEFS += -DEE_M24LR64
 # if you use the following option, you must implement the function 
 #    assert_failed(uint8_t* file, uint32_t line)
 # because it is conditionally used in the library
@@ -124,7 +129,8 @@ LFLAGS  = -TSW4STM32/STM32F429I-Discovery/STM32F429ZITx_FLASH.ld
 $(PROJ_NAME): $(PROJ_NAME).elf
 
 $(PROJ_NAME).elf: $(SRCS)
-	$(CC) $(INCLUDE) $(DEFS) $(CFLAGS) $(LFLAGS) $^ -o $@ 
+#$(CC) $(INCLUDE) $(DEFS) $(CFLAGS)   $(LFLAGS) $^ -o $@ 
+	 $(CC) $(INCLUDE) $(DEFS) $(CFLAGS) -include $(INCS) $(LFLAGS) $^ -o $@
 	$(OBJCOPY) -O ihex $(PROJ_NAME).elf   $(PROJ_NAME).hex
 	$(OBJCOPY) -O binary $(PROJ_NAME).elf $(PROJ_NAME).bin
 
