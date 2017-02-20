@@ -35,8 +35,9 @@ SRCS  += Src/system_stm32f4xx.c
 # These source files implement the functions we use.
 # make finds them by searching the vpath defined above.
 #SRCS  += stm32f4xx_rcc.c 
-SRCS += stm32f4xx_hal_uart.c
 SRCS += stm32f4xx_hal_gpio.c
+SRCS += stm32f4xx_hal_uart.c
+SRCS += stm32f4xx_hal_usart.c
 SRCS += stm32f4xx_hal_i2c.c
 SRCS += stm32f4xx_hal_spi.c
 SRCS += stm32f4xx_hal_dma.c
@@ -70,6 +71,7 @@ INC_DIRS += $(STM_DIR)/BSP/STM32F429I-Discovery
 INC_DIRS += Inc
 INC_DIRS += $(STM_DIR)/CMSIS/Device/ST/STM32F4xx/Include
 INC_DIRS += $(STM_DIR)/CMSIS/Include
+
 
 
 

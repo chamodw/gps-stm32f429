@@ -62,10 +62,6 @@ void SysTick_Handler(void);
 void EXTI0_IRQHandler(void);
 void EXTI2_IRQHandler(void);
 void EXTI15_10_IRQHandler(void);
-#ifdef EE_M24LR64
-void EEPROM_I2C_DMA_TX_IRQHandler(void);
-void EEPROM_I2C_DMA_RX_IRQHandler(void);
-#endif /*EE_M24LR64*/
 
 #ifdef __cplusplus
 }

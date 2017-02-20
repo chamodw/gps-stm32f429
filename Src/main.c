@@ -38,6 +38,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stlogo.h"
+#include "usart.h"
 
 /** @addtogroup STM32F4xx_HAL_Examples
   * @{
@@ -52,12 +53,9 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 
- /* UART handler declaration */
- UART_HandleTypeDef UartHandle;
- __IO ITStatus UartReady = RESET;
  
  /* Buffer used for transmission */
- uint8_t aTxBuffer[] = " ****UART_TwoBoards_ComIT****  ****UART_TwoBoards_ComIT****  ****UART_TwoBoards_ComIT**** ";
+ uint8_t aTxBuffer[1000] = "";
  
  /* Buffer used for reception */
  uint8_t aRxBuffer[RXBUFFERSIZE];
@@ -103,29 +101,15 @@ int main(void)
   SystemClock_Config();
  
 
-	UartHandle.Instance          = USARTx;
-
-	UartHandle.Init.BaudRate     = 9600;
-	UartHandle.Init.WordLength   = UART_WORDLENGTH_8B;
-	UartHandle.Init.StopBits     = UART_STOPBITS_1;
-	UartHandle.Init.Parity       = UART_PARITY_NONE;
-	UartHandle.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
-	UartHandle.Init.Mode         = UART_MODE_TX_RX;
-	UartHandle.Init.OverSampling = UART_OVERSAMPLING_16;
-
-
-
-	if(HAL_UART_Init(&UartHandle) != HAL_OK)
-	{
-	 Error_Handler();
-	}
-
   /* Configure USER Button */
   BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_EXTI);
   
   /*##-1- Initialize the LCD #################################################*/
   /* Initialize the LCD */
   BSP_LCD_Init();
+
+  //Initialize USART
+  USART1_Init();
   
   /* Initialize the LCD Layers */
   BSP_LCD_LayerDefaultInit(1, LCD_FRAME_BUFFER);
@@ -133,12 +117,28 @@ int main(void)
   Display_DemoDescription();
   
   /* Wait For User inputs */
-  
+ 	
+  uint8_t temp_buf[100];
 	if(BSP_PB_GetState(BUTTON_KEY) == RESET)
 	{
-		while (BSP_PB_GetState(BUTTON_KEY) == RESET);
-		MEMS_demo(); 
-	}
+			while (BSP_PB_GetState(BUTTON_KEY) == RESET);
+
+			if (USART1_NewData() > 1)
+			{
+				uint16_t read_chars = USART1_GetData(temp_buf, 100);
+				temp_buf[read_chars] = '\0';
+				BSP_LCD_DisplayStringAt(0,0, temp_buf);
+				while(1);	
+			}
+
+			while(1){
+					BSP_LED_On(LED3);
+					HAL_Delay(200);
+					BSP_LED_Off(LED3);
+					HAL_Delay(100);
+			}  
+
+  }
   return 0;
 }
 
@@ -262,6 +262,7 @@ uint8_t CheckForUserInput(void)
   */
 void Toggle_Leds(void)
 {
+    /*
   static uint8_t ticks = 0;
   
   if(ticks++ > 100)
@@ -269,7 +270,7 @@ void Toggle_Leds(void)
     BSP_LED_Toggle(LED3);
     BSP_LED_Toggle(LED4);
     ticks = 0;
-  }
+  }*/
 }
 
 /**

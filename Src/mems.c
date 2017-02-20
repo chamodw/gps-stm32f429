@@ -135,8 +135,9 @@ void MEMS_demo(void)
     	BSP_LCD_DisplayStringAt(0, BSP_LCD_GetYSize()/2 , (uint8_t*)"            ", CENTER_MODE);
    BSP_LCD_DisplayStringAt(0, BSP_LCD_GetYSize()/2+30, (uint8_t*)"            ", CENTER_MODE);
    BSP_LCD_DisplayStringAt(0, BSP_LCD_GetYSize()/2+60, (uint8_t*)"          ", CENTER_MODE);
+ /* The board receives the message and sends it back */
 
-  }
+   }
 }
 
 /**

@@ -54,6 +54,7 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+extern UART_HandleTypeDef UartHandle;
 #ifdef EE_M24LR64
 extern I2C_HandleTypeDef I2cHandle;
 #endif /* EE_M24LR64 */
@@ -180,28 +181,6 @@ void EXTI0_IRQHandler(void)
 {
   HAL_GPIO_EXTI_IRQHandler(KEY_BUTTON_PIN);
 }
-
-#ifdef EE_M24LR64
-/**
-  * @brief  This function handles sEE DMA TX interrupt request.
-  * @param  None
-  * @retval None
-  */
-void EEPROM_I2C_DMA_TX_IRQHandler(void)
-{ 
-  HAL_DMA_IRQHandler(I2cHandle.hdmatx);
-}
-
-/**
-  * @brief  This function handles sEE DMA RX interrupt request.
-  * @param  None
-  * @retval None
-  */
-void EEPROM_I2C_DMA_RX_IRQHandler(void)
-{ 
-  HAL_DMA_IRQHandler(I2cHandle.hdmarx);
-}
-#endif /* EE_M24LR64 */
 
 /**
   * @}
