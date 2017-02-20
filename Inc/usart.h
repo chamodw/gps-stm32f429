@@ -8,8 +8,9 @@
 #define USART1_BUFFER_SIZE 1024
 
 
-void USART1_Init();
+void CW_USART1_Init2();
 uint16_t USART1_NewData();
 uint16_t USART1_CountChar(char c);
 uint16_t USART1_GetData(uint8_t* dest, uint16_t size);
+uint16_t CW_USART1_IRqHandler(UART_HandleTypeDef* handle);
 #endif

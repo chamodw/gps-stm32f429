@@ -103,15 +103,16 @@ int main(void)
 
   /* Configure USER Button */
   BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_EXTI);
+
+  //Initialize USART
+  CW_USART1_Init2();
   
+
   /*##-1- Initialize the LCD #################################################*/
   /* Initialize the LCD */
   BSP_LCD_Init();
 
-  //Initialize USART
-  USART1_Init();
-  
-  /* Initialize the LCD Layers */
+    /* Initialize the LCD Layers */
   BSP_LCD_LayerDefaultInit(1, LCD_FRAME_BUFFER);
   
   Display_DemoDescription();
@@ -119,24 +120,25 @@ int main(void)
   /* Wait For User inputs */
  	
   uint8_t temp_buf[100];
+  uint8_t location = 0;
 	if(BSP_PB_GetState(BUTTON_KEY) == RESET)
 	{
 			while (BSP_PB_GetState(BUTTON_KEY) == RESET);
+			BSP_LCD_Clear(LCD_COLOR_BLUE);;
+			BSP_LCD_SetBackColor(LCD_COLOR_BLUE); 
 
-			if (USART1_NewData() > 1)
+			while(1)
 			{
-				uint16_t read_chars = USART1_GetData(temp_buf, 100);
-				temp_buf[read_chars] = '\0';
-				BSP_LCD_DisplayStringAt(0,0, temp_buf);
-				while(1);	
+				while (USART1_NewData() == 0);
+				if (USART1_NewData() > 0)
+				{
+					uint16_t read_chars = USART1_GetData(temp_buf, 100);
+					temp_buf[read_chars] = '\0';
+					BSP_LCD_DisplayStringAt(location++, 0, temp_buf, LEFT_MODE);
+				}
 			}
 
-			while(1){
-					BSP_LED_On(LED3);
-					HAL_Delay(200);
-					BSP_LED_Off(LED3);
-					HAL_Delay(100);
-			}  
+
 
   }
   return 0;
