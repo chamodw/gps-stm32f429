@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    BSP/Src/stm32f4xx_it.c 
+  * @file    UART/UART_TwoBoards_ComIT/Src/stm32f4xx_it.c 
   * @author  MCD Application Team
   * @version V1.2.1
   * @date    13-March-2015
@@ -39,25 +39,23 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "stm32f4xx_it.h"   
-
-
+#include "stm32f4xx_it.h"
+   
 /** @addtogroup STM32F4xx_HAL_Examples
   * @{
   */
 
-/** @addtogroup BSP
+/** @addtogroup UART_TwoBoards_ComIT
   * @{
   */
-
+ 
+void CW_USART1_IRQHandler(UART_HandleTypeDef* handle);
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+/* UART handler declared in "main.c" file */
 extern UART_HandleTypeDef UartHandle;
-#ifdef EE_M24LR64
-extern I2C_HandleTypeDef I2cHandle;
-#endif /* EE_M24LR64 */
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -162,7 +160,6 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   HAL_IncTick();
-  Toggle_Leds();
 }
 
 /******************************************************************************/
@@ -173,19 +170,26 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
-  * @brief  This function handles External line 0 interrupt request.
+  * @brief  This function handles UART interrupt request.  
+  * @param  None
+  * @retval None
+  * @Note   This function is redefined in "main.h" and related to DMA stream 
+  *         used for USART data transmission     
+  */
+void USARTx_IRQHandler(void)
+{
+	CW_USART1_IRQHandler(&UartHandle);
+  //HAL_UART_IRQHandler(& UartHandle);
+}
+
+/**
+  * @brief  This function handles PPP interrupt request.
   * @param  None
   * @retval None
   */
-void EXTI0_IRQHandler(void)
+/*void PPP_IRQHandler(void)
 {
-  HAL_GPIO_EXTI_IRQHandler(KEY_BUTTON_PIN);
-}
-
-void USART1_IRQHandler(void)
-{
-	CW_USART1_IRQHandler(&UartHandle);
-}
+}*/
 
 /**
   * @}

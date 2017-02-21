@@ -76,6 +76,9 @@ BSP_DemoTypedef BSP_examples[]=
 static void SystemClock_Config(void);
 static void Display_DemoDescription(void);
 static void Error_Handler(void);
+
+
+uint8_t* CW_GPS_DecodeVTG(uint8_t* vtg_sntc);
 /* Private functions ---------------------------------------------------------*/
 
 /**
@@ -105,7 +108,7 @@ int main(void)
   BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_EXTI);
 
   //Initialize USART
-  CW_USART1_Init2();
+  CW_USART1_Init();
   
 
   /*##-1- Initialize the LCD #################################################*/
@@ -117,26 +120,49 @@ int main(void)
   
   Display_DemoDescription();
   
-  /* Wait For User inputs */
- 	
+
   uint8_t temp_buf[100];
   uint8_t location = 0;
-	if(BSP_PB_GetState(BUTTON_KEY) == RESET)
-	{
-			while (BSP_PB_GetState(BUTTON_KEY) == RESET);
-			BSP_LCD_Clear(LCD_COLOR_BLUE);;
-			BSP_LCD_SetBackColor(LCD_COLOR_BLUE); 
+  /* Wait For User inputs */
+  if(BSP_PB_GetState(BUTTON_KEY) == RESET)
+  {
+//	  while (BSP_PB_GetState(BUTTON_KEY) == RESET);
 
-			while(1)
-			{
-				while (USART1_NewData() == 0);
-				if (USART1_NewData() > 0)
-				{
-					uint16_t read_chars = USART1_GetData(temp_buf, 100);
-					temp_buf[read_chars] = '\0';
-					BSP_LCD_DisplayStringAt(location++, 0, temp_buf, LEFT_MODE);
-				}
-			}
+
+	  BSP_LCD_Clear(LCD_COLOR_BLUE);;
+	  BSP_LCD_SetBackColor(LCD_COLOR_BLUE); 
+
+	  uint16_t nlcount;
+
+	  while(1)
+	  {
+
+		  while (1)
+		  {
+			  nlcount = CW_USART1_CountChar('\n');
+			  if (nlcount > 0)
+				  break;
+		  }
+		  uint16_t read_chars = CW_USART1_GetLine(temp_buf, 100);
+
+		  nlcount = CW_USART1_CountChar('\n');
+			if (read_chars > 0)
+			  BSP_LCD_DisplayStringAt(0, BSP_LCD_GetYSize()/2, temp_buf, CENTER_MODE);
+
+		  /*
+			 if (read_chars > 0)
+			 {
+			 continue;
+			 if (strstr((const char*) temp_buf, "VTG"))
+			 {
+			 uint8_t* v_str= CW_GPS_DecodeVTG(temp_buf);
+			 if (v_str)
+			 BSP_LCD_DisplayStringAt(0, BSP_LCD_GetYSize()/2 , v_str, CENTER_MODE);
+			 else
+			 BSP_LCD_DisplayStringAt(0, BSP_LCD_GetYSize()/2, "NO DATA", CENTER_MODE);
+			 }
+			 }*/
+	  }
 
 
 
@@ -323,6 +349,37 @@ void assert_failed(uint8_t* file, uint32_t line)
    }
  }
 
+uint8_t speed_str[20];
+uint8_t* CW_GPS_DecodeVTG(uint8_t* vtg_sntc)
+{
+	uint16_t l = strlen((const char*)vtg_sntc);
+	uint16_t i;
+	uint8_t comma_count = 0;
+	uint8_t beg=0, end=0;
+	for (i = 0; i < l; i++)
+	{
+		if (vtg_sntc[i] == ',')
+		{
+			comma_count++;
+			if (comma_count == 7)
+				beg = i+1;
+			if (comma_count == 8)
+			{
+				end = i;
+				break;
+			}
+		}
+	}
+	if (end < beg+1)
+		return NULL;
+	else
+	{
+		strncpy((char*)speed_str, (const char*)(vtg_sntc + beg), end-beg);
+		return speed_str;
+	}
+		
+
+}
 
 /**
   * @}

@@ -113,7 +113,7 @@ DEFS += -DEE_M24LR64
 CFLAGS  = -ggdb
 # please do not optimize anything because we are debugging
 CFLAGS += -O0 
-CFLAGS += -Wall -Wextra -Warray-bounds
+CFLAGS += -Wall -Wextra -Warray-bounds -Wno-unused-parameter
 CFLAGS += -mlittle-endian -mthumb -mcpu=cortex-m4 -mthumb-interwork
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 CFLAGS += --specs=nosys.specs

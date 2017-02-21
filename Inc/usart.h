@@ -5,12 +5,15 @@
 #include "stm32f4xx_hal_rcc.h"
 #include "stm32f4xx_hal_gpio.h"
 #include "stm32f4xx_hal_usart.h"
-#define USART1_BUFFER_SIZE 1024
+#define USART1_BUFFER_SIZE 10
 
 
-void CW_USART1_Init2();
-uint16_t USART1_NewData();
-uint16_t USART1_CountChar(char c);
-uint16_t USART1_GetData(uint8_t* dest, uint16_t size);
+void CW_USART1_Init();
+uint16_t CW_USART1_NewData();
+uint16_t CW_USART1_GetLine(uint8_t* dest, uint16_t size);
+uint16_t CW_USART1_CountChar(uint8_t c);
+uint16_t CW_USART1_GetData(uint8_t* dest, uint16_t size);
 uint16_t CW_USART1_IRqHandler(UART_HandleTypeDef* handle);
+void CW_USART1_SendChar(uint8_t c);
+void CW_USART1_SendStr(uint8_t* str);
 #endif
