@@ -136,6 +136,7 @@ int main(void)
 
 	  while(1)
 	  {
+		  MEMS_demo();
 
 		  while (1)
 		  {
@@ -144,24 +145,18 @@ int main(void)
 				  break;
 		  }
 		  uint16_t read_chars = CW_USART1_GetLine(temp_buf, 100);
-
-		  nlcount = CW_USART1_CountChar('\n');
-			if (read_chars > 0)
-			  BSP_LCD_DisplayStringAt(0, BSP_LCD_GetYSize()/2, temp_buf, CENTER_MODE);
-
-		  /*
-			 if (read_chars > 0)
-			 {
-			 continue;
-			 if (strstr((const char*) temp_buf, "VTG"))
-			 {
-			 uint8_t* v_str= CW_GPS_DecodeVTG(temp_buf);
-			 if (v_str)
-			 BSP_LCD_DisplayStringAt(0, BSP_LCD_GetYSize()/2 , v_str, CENTER_MODE);
-			 else
-			 BSP_LCD_DisplayStringAt(0, BSP_LCD_GetYSize()/2, "NO DATA", CENTER_MODE);
-			 }
-			 }*/
+		  if (read_chars > 0)
+		  {
+			//CW_USART1_SendStr(temp_buf);
+			  if (strstr((const char*) temp_buf, "VTG"))
+			  {
+				  uint8_t* v_str= CW_GPS_DecodeVTG(temp_buf);
+				  if (v_str)
+					  BSP_LCD_DisplayStringAt(0, BSP_LCD_GetYSize()/2 , v_str, CENTER_MODE);
+				  else
+					  BSP_LCD_DisplayStringAt(0, BSP_LCD_GetYSize()/2, "NO DATA", CENTER_MODE);
+			  }
+		  }
 	  }
 
 

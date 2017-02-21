@@ -5,7 +5,7 @@
 #include "stm32f4xx_hal_rcc.h"
 #include "stm32f4xx_hal_gpio.h"
 #include "stm32f4xx_hal_usart.h"
-#define USART1_BUFFER_SIZE 10
+#define USART1_BUFFER_SIZE 200
 
 
 void CW_USART1_Init();
