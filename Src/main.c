@@ -54,12 +54,7 @@
 /* Private variables ---------------------------------------------------------*/
 
  
- /* Buffer used for transmission */
- uint8_t aTxBuffer[1000] = "";
- 
- /* Buffer used for reception */
- uint8_t aRxBuffer[RXBUFFERSIZE];
- 
+
 
 static uint8_t DemoIndex = 0;
 #ifdef EE_M24LR64
@@ -76,7 +71,7 @@ BSP_DemoTypedef BSP_examples[]=
 static void SystemClock_Config(void);
 static void Display_DemoDescription(void);
 static void Error_Handler(void);
-
+void CW_MPU_Init();
 
 uint8_t* CW_GPS_DecodeVTG(uint8_t* vtg_sntc);
 /* Private functions ---------------------------------------------------------*/
@@ -109,6 +104,13 @@ int main(void)
 
   //Initialize USART
   CW_USART1_Init();
+
+//Initialize I2C
+  CW_MPU_Init();
+
+  I2C_GenerateSTART(I2C1, ENABLE);
+  while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
+
   
 
   /*##-1- Initialize the LCD #################################################*/
@@ -131,12 +133,11 @@ int main(void)
 
 	  BSP_LCD_Clear(LCD_COLOR_BLUE);;
 	  BSP_LCD_SetBackColor(LCD_COLOR_BLUE); 
-
+	BSP_LCD_SetFont(&Font24);
 	  uint16_t nlcount;
 
 	  while(1)
 	  {
-		  MEMS_demo();
 
 		  while (1)
 		  {
@@ -152,7 +153,10 @@ int main(void)
 			  {
 				  uint8_t* v_str= CW_GPS_DecodeVTG(temp_buf);
 				  if (v_str)
+				  {
+					  BSP_LCD_DisplayStringAt(0, BSP_LCD_GetYSize()/2 , "                ", CENTER_MODE);
 					  BSP_LCD_DisplayStringAt(0, BSP_LCD_GetYSize()/2 , v_str, CENTER_MODE);
+				  }
 				  else
 					  BSP_LCD_DisplayStringAt(0, BSP_LCD_GetYSize()/2, "NO DATA", CENTER_MODE);
 			  }
@@ -163,6 +167,64 @@ int main(void)
 
   }
   return 0;
+}
+
+
+void CW_MPU_Init()
+{
+	I2C_InitTypeDef initI2c;
+	 GPIO_InitTypeDef  GPIO_InitStruct;
+
+	initI2c.ClockSpeed = 100000;
+	initI2c.DutyCycle = I2C_DUTYCYCLE_2;
+	initI2c.OwnAddress1 = 0;
+	initI2c.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+
+	I2C_HandleTypeDef hi2c;
+	hi2c.Instance = I2C3;
+	hi2c.Init = initI2c;
+
+	/* Configure the GPIOs ---------------------------------------------------*/
+	/* Enable GPIO clock */
+	__HAL_RCC_GPIOC_CLK_ENABLE();
+	__HAL_RCC_GPIOA_CLK_ENABLE();
+
+	/* Configure I2C Tx as alternate function  */
+	GPIO_InitStruct.Pin       = GPIO_PIN_8;
+	GPIO_InitStruct.Mode      = GPIO_MODE_AF_OD;
+	GPIO_InitStruct.Pull      = GPIO_NOPULL;
+	GPIO_InitStruct.Speed     = GPIO_SPEED_FAST;
+	GPIO_InitStruct.Alternate = DISCOVERY_I2Cx_SCL_SDA_AF;
+	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+	/* Configure I2C Rx as alternate function  */
+	GPIO_InitStruct.Pin = GPIO_PIN_9;
+	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+
+	/* Configure the Discovery I2Cx peripheral -------------------------------*/
+	/* Enable I2C3 clock */
+	__I2C3_CLK_ENABLE();
+
+	/* Force the I2C Peripheral Clock Reset */
+	__I2C3_FORCE_RESET();
+
+	/* Release the I2C Peripheral Clock Reset */
+	__I2C3_RELEASE_RESET();
+
+	/* Enable and set Discovery I2Cx Interrupt to the highest priority */
+	HAL_NVIC_SetPriority(I2C3_EV_IRQn, 0x00, 0);
+	HAL_NVIC_EnableIRQ(I2C3_EV_IRQn);
+
+	/* Enable and set Discovery I2Cx Interrupt to the highest priority */
+	HAL_NVIC_SetPriority(I2C3_ER_IRQn, 0x00, 0);
+	HAL_NVIC_EnableIRQ(I2C3_ER_IRQn);
+
+	HAL_I2C_Init(&hi2c);
+
+	__HAL_I2C_ENABLE(&hi2c);
+
+
 }
 
 /**
